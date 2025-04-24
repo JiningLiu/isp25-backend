@@ -1,26 +1,52 @@
 import { serve } from "bun";
+import { Board } from "johnny-five";
+import RaspiIO from "raspi-io";
+
+import { getStatusCode, Status } from "./types/Status";
+import type { Code } from "./types/Code";
+import { Glockenspiel, playNote } from "./types/Glockenspiel";
+
+// Server status
+let status: Status = Status.INIT;
+
+// Glockenspiel Servo Controller
+let gs: Glockenspiel | null = null;
+
+// RPi GPIO Connection
+const board = new Board({
+  io: new RaspiIO(),
+});
+
+status = Status.NO_BOARD;
+
+board.on("ready", () => {
+  gs = new Glockenspiel();
+  status = Status.READY;
+});
 
 serve({
-  // `routes` requires Bun v1.2.3+
   routes: {
-    // Static routes
-    "/api/status": new Response("OK"),
+    "/status": new Response(status, { status: getStatusCode(status) }),
 
-    // Dynamic routes
-    "/users/:id": (req) => {
-      return new Response(`Hello User ${req.params.id}!`);
+    "/play": {
+      POST: async (req) => {
+        if (gs) {
+          const body = (await req.json()) as { note: string };
+          playNote(body.note, gs);
+          return new Response("OK");
+        }
+        return new Response("No Board", { status: 500 });
+      },
     },
 
-    // Per-HTTP method handlers
-    "/api/posts": {
+    "/submit": {
       POST: async (req) => {
-        const body = await req.json();
-        // process
+        const code = (await req.json()) as Code;
         return new Response("OK");
       },
     },
 
-    "/api/*": Response.json({ message: "Not found" }, { status: 404 }),
+    "/*": new Response("Not Found", { status: 404 }),
   },
 
   fetch(req) {

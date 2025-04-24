@@ -8,5 +8,10 @@
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "@types/johnny-five": "^2.1.11",
+    "johnny-five": "^2.1.0",
+    "raspi-io": "^11.0.0"
   }
 }
