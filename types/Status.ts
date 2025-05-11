@@ -1,10 +1,10 @@
-export enum Status {
-  INIT = "Initializing",
-  NO_BOARD = "No Board",
-  READY = "Ready"
-}
+const Status = {
+  INIT: "Initializing",
+  NO_BOARD: "No Board",
+  READY: "Ready"
+} as const;
 
-export function getStatusCode(status: Status): number {
+function getStatusCode(status: typeof Status[keyof typeof Status]): number {
   switch (status) {
     case Status.INIT:
       return 503;
@@ -16,3 +16,8 @@ export function getStatusCode(status: Status): number {
       return 500;
   }
 }
+
+module.exports = {
+  Status,
+  getStatusCode
+};

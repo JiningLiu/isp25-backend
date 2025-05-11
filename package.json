@@ -1,17 +1,34 @@
 {
   "name": "isp25-backend",
-  "module": "index.ts",
-  "type": "module",
-  "private": true,
-  "devDependencies": {
-    "@types/bun": "latest"
+  "version": "1.0.0",
+  "description": "<h1 align=\"center\">Marble Machine Backend</h1> <h6 align=\"center\">ISP 2025</h6> <p align=\"center\">A TS+Bun server for the programmable marble machine.</p>",
+  "homepage": "https://github.com/JiningLiu/isp25-backend#readme",
+  "bugs": {
+    "url": "https://github.com/JiningLiu/isp25-backend/issues"
   },
-  "peerDependencies": {
-    "typescript": "^5"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JiningLiu/isp25-backend.git"
+  },
+  "license": "MIT",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "it": "ts-node index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@types/johnny-five": "^2.1.11",
+    "express": "^5.1.0",
     "johnny-five": "^2.1.0",
+    "pigpio": "^3.3.1",
     "raspi-io": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.1",
+    "@types/johnny-five": "^2.1.11",
+    "@types/node": "^22.15.17",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   }
 }

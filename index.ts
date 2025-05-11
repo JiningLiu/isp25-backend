@@ -1,72 +1,82 @@
-import { serve } from "bun";
-import { Board } from "johnny-five";
-import RaspiIO from "raspi-io";
+// const five = require('johnny-five');
+// const Raspi = require('raspi-io').RaspiIO;
+import type { Request, Response } from "express";
+const express = require("express");
+const app = express();
 
-import { getStatusCode, Status } from "./types/Status";
-import type { Code } from "./types/Code";
-import { Glockenspiel, playNote } from "./types/Glockenspiel";
-import { Lights, ledOn, ledOff, ledsSet } from "./types/Lights";
+const { getStatusCode, Status } = require("./types/Status");
+const { Code } = require("./types/Code");
+const { Glockenspiel, playNote } = require("./types/Glockenspiel");
+const { Lights, ledOn, ledOff, ledsSet } = require("./types/Lights");
+
+console.log("================================");
+console.log("IB Literature 2024-2025 ISP");
+console.log("Marble Machine");
+console.log("================================");
 
 // Server status
-let status: Status = Status.INIT;
+let serverStatus: (typeof Status)[keyof typeof Status] = Status.INIT;
 
 // Glockenspiel Servo Controller
-let gs: Glockenspiel | null = null;
+let gs: typeof Glockenspiel | null = null;
 
 // Indicator Lights Controller
-let lights: Lights | null = null;
+let lights: typeof Lights | null = null;
 
 // RPi GPIO Connection
-const board = new Board({
-  io: new RaspiIO(),
-});
+// const board = new five.Board({
+//   io: new Raspi()
+// });
 
 let playNoteTimeout: NodeJS.Timeout | null = null;
 
-status = Status.NO_BOARD;
+serverStatus = Status.NO_BOARD;
 
-board.on("ready", () => {
-  gs = new Glockenspiel();
-  lights = new Lights();
-  status = Status.READY;
+// board.on("ready", () => {
+//   gs = new Glockenspiel();
+//   lights = new Lights();
+//   serverStatus = Status.READY;
+// });
+
+app.use(express.json());
+
+// Status endpoint
+app.get("/status", (req: Request, res: Response) => {
+  res.status(getStatusCode(serverStatus)).send(serverStatus);
 });
 
-serve({
-  routes: {
-    "/status": new Response(status, { status: getStatusCode(status) }),
+// Play endpoint
+app.post("/play", async (req: Request, res: Response) => {
+  if (gs && lights) {
+    const { note } = req.body as unknown as { note: string };
 
-    "/play": {
-      POST: async (req) => {
-        if (gs && lights) {
-          const body = (await req.json()) as { note: string };
+    if (playNoteTimeout) clearTimeout(playNoteTimeout);
 
-          if (playNoteTimeout) clearTimeout(playNoteTimeout);
+    playNote(note, gs);
+    ledOn(note, lights);
+    playNoteTimeout = setTimeout(() => {
+      if (lights) {
+        ledOff(note, lights);
+      }
+    }, 500);
 
-          playNote(body.note, gs);
-          ledOn(body.note, lights);
-          playNoteTimeout = setTimeout(() => {
-            if (lights) {
-              ledOff(body.note, lights);
-            }
-          }, 500);
+    res.status(200).send("OK");
+  } else {
+    res.status(500).send("No Board");
+  }
+});
 
-          return new Response("OK");
-        }
-        return new Response("No Board", { status: 500 });
-      },
-    },
+// Submit endpoint
+app.post("/submit", async (req: Request, res: Response) => {
+  const code = req.body as typeof Code;
+  res.status(200).send("OK");
+});
 
-    "/submit": {
-      POST: async (req) => {
-        const code = (await req.json()) as Code;
-        return new Response("OK");
-      },
-    },
+// 404 handler
+app.use((req: Request, res: Response) => {
+  res.status(404).send("Not Found");
+});
 
-    "/*": new Response("Not Found", { status: 404 }),
-  },
-
-  fetch(req) {
-    return new Response("Not Found", { status: 404 });
-  },
+app.listen(20240, () => {
+  console.log(`Server is running on port 20240`);
 });

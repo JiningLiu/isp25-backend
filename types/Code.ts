@@ -1,3 +1,3 @@
-export interface Code {
-
+interface Code {
 }
+export type { Code };

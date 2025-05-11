@@ -1,19 +1,19 @@
-import { Servo } from "johnny-five";
+const { Servo } = require("johnny-five");
 
-export class Glockenspiel {
-  c1: Servo;
-  d1: Servo;
-  e1: Servo;
-  f1: Servo;
-  g1: Servo;
-  a1: Servo;
-  b1: Servo;
-  c2: Servo;
-  d2: Servo;
-  e2: Servo;
-  f2: Servo;
-  g2: Servo;
-  a3: Servo;
+class Glockenspiel {
+  c1: typeof Servo;
+  d1: typeof Servo;
+  e1: typeof Servo;
+  f1: typeof Servo;
+  g1: typeof Servo;
+  a1: typeof Servo;
+  b1: typeof Servo;
+  c2: typeof Servo;
+  d2: typeof Servo;
+  e2: typeof Servo;
+  f2: typeof Servo;
+  g2: typeof Servo;
+  a3: typeof Servo;
 
   constructor() {
     function servoConfig(pin: number): {
@@ -40,7 +40,7 @@ export class Glockenspiel {
   }
 }
 
-export function playNote(note: string, gs: Glockenspiel): void {
+function playNote(note: string, gs: Glockenspiel): void {
   const notes: { [key: string]: () => void } = {
     c1: () => gs.c1.play(),
     d1: () => gs.d1.play(),
@@ -73,4 +73,9 @@ Servo.prototype.play = function () {
   setTimeout(() => {
     this.min();
   }, 200);
+};
+
+module.exports = {
+  Glockenspiel,
+  playNote
 };

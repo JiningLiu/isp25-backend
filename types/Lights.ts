@@ -1,19 +1,19 @@
-import { Led } from "johnny-five";
+const { Led } = require("johnny-five");
 
-export class Lights {
-  c1: Led;
-  d1: Led;
-  e1: Led;
-  f1: Led;
-  g1: Led;
-  a1: Led;
-  b1: Led;
-  c2: Led;
-  d2: Led;
-  e2: Led;
-  f2: Led;
-  g2: Led;
-  a3: Led;
+class Lights {
+  c1: typeof Led;
+  d1: typeof Led;
+  e1: typeof Led;
+  f1: typeof Led;
+  g1: typeof Led;
+  a1: typeof Led;
+  b1: typeof Led;
+  c2: typeof Led;
+  d2: typeof Led;
+  e2: typeof Led;
+  f2: typeof Led;
+  g2: typeof Led;
+  a3: typeof Led;
 
   constructor() {
     function ledConfig(pin: number): {
@@ -40,7 +40,7 @@ export class Lights {
   }
 }
 
-export function ledOn(note: string, lights: Lights): void {
+function ledOn(note: string, lights: Lights): void {
   const notes: { [key: string]: () => void } = {
     c1: () => lights.c1.on(),
     d1: () => lights.d1.on(),
@@ -62,7 +62,7 @@ export function ledOn(note: string, lights: Lights): void {
   }
 }
 
-export function ledOff(note: string, lights: Lights): void {
+function ledOff(note: string, lights: Lights): void {
   const notes: { [key: string]: () => void } = {
     c1: () => lights.c1.off(),
     d1: () => lights.d1.off(),
@@ -84,8 +84,8 @@ export function ledOff(note: string, lights: Lights): void {
   }
 }
 
-export function ledsSet(notes: string[], lights: Lights, on: boolean): void {
-  const map: { [key: string]: Led } = {
+function ledsSet(notes: string[], lights: Lights, on: boolean): void {
+  const map: { [key: string]: typeof Led } = {
     c1: lights.c1,
     d1: lights.d1,
     e1: lights.e1,
@@ -117,3 +117,10 @@ export function ledsSet(notes: string[], lights: Lights, on: boolean): void {
     }
   });
 }
+
+module.exports = {
+  Lights,
+  ledOn,
+  ledOff,
+  ledsSet
+};
