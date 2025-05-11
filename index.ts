@@ -34,7 +34,22 @@ board.on("ready", () => {
 serve({
   routes: {
     "/status": new Response(status, { status: getStatusCode(status) }),
-
+    
+    "/note": async req => {
+      const res = new Response("complete");
+      res.headers.set('Access-Control-Allow-Origin', '*');
+      res.headers.set('Access-Control-Allow-Methods', '*');
+      // add Access-Control-Allow-Headers if needed
+      let body = await req.json() as {message: string};
+      setTimeout(async () => {
+        let a = body.message.split(",")
+        for(let i = 0;i<a.length;i++){
+          console.log(a[i])
+        }
+      }, 0);
+      return res;
+    },
+    
     "/play": {
       POST: async (req) => {
         if (gs && lights) {
