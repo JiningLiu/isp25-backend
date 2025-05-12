@@ -13,7 +13,7 @@ class Lights {
   e2: typeof Led;
   f2: typeof Led;
   g2: typeof Led;
-  a3: typeof Led;
+  a2: typeof Led;
 
   constructor() {
     function ledConfig(pin: number): {
@@ -36,7 +36,7 @@ class Lights {
     this.e2 = new Led(ledConfig(9));
     this.f2 = new Led(ledConfig(10));
     this.g2 = new Led(ledConfig(11));
-    this.a3 = new Led(ledConfig(12));
+    this.a2 = new Led(ledConfig(12));
   }
 }
 
@@ -54,7 +54,7 @@ function ledOn(note: string, lights: Lights): void {
     e2: () => lights.e2.on(),
     f2: () => lights.f2.on(),
     g2: () => lights.g2.on(),
-    a3: () => lights.a3.on(),
+    a2: () => lights.a2.on(),
   };
 
   if (notes[note]) {
@@ -76,7 +76,7 @@ function ledOff(note: string, lights: Lights): void {
     e2: () => lights.e2.off(),
     f2: () => lights.f2.off(),
     g2: () => lights.g2.off(),
-    a3: () => lights.a3.off(),
+    a2: () => lights.a2.off(),
   };
 
   if (notes[note]) {
@@ -98,7 +98,7 @@ function ledsSet(notes: string[], lights: Lights, on: boolean): void {
     e2: lights.e2,
     f2: lights.f2,
     g2: lights.g2,
-    a3: lights.a3,
+    a2: lights.a2,
   };
 
   Object.entries(map).forEach(([note, led]) => {

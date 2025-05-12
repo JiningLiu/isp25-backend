@@ -13,7 +13,7 @@ class Glockenspiel {
   e2: typeof Servo;
   f2: typeof Servo;
   g2: typeof Servo;
-  a3: typeof Servo;
+  a2: typeof Servo;
 
   constructor() {
     function servoConfig(pin: number): {
@@ -36,7 +36,7 @@ class Glockenspiel {
     this.e2 = new Servo(servoConfig(9));
     this.f2 = new Servo(servoConfig(10));
     this.g2 = new Servo(servoConfig(11));
-    this.a3 = new Servo(servoConfig(12));
+    this.a2 = new Servo(servoConfig(12));
   }
 }
 
@@ -54,7 +54,7 @@ function playNote(note: string, gs: Glockenspiel): void {
     e2: () => gs.e2.play(),
     f2: () => gs.f2.play(),
     g2: () => gs.g2.play(),
-    a3: () => gs.a3.play(),
+    a2: () => gs.a2.play(),
   };
 
   if (notes[note]) {
@@ -69,10 +69,10 @@ declare module "johnny-five" {
 }
 
 Servo.prototype.play = function () {
-  this.to(0, 125);
+  this.to(30, 83);
   setTimeout(() => {
-    this.to(60, 125);
-  }, 125);
+    this.to(60, 83);
+  }, 83);
 };
 
 module.exports = {

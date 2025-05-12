@@ -28,8 +28,6 @@ const board = new five.Board({
   io: new Raspi(),
 });
 
-let playNoteTimeout: NodeJS.Timeout | null = null;
-
 serverStatus = Status.NO_BOARD;
 
 board.on("ready", () => {
@@ -50,15 +48,10 @@ app.post("/play", async (req: Request, res: Response) => {
   if (gs && lights) {
     const { note } = req.body as unknown as { note: string };
 
-    if (playNoteTimeout) clearTimeout(playNoteTimeout);
-
     playNote(note, gs);
     ledOn(note, lights);
-    playNoteTimeout = setTimeout(() => {
-      if (lights) {
-        ledOff(note, lights);
-      }
-    }, 250);
+    await new Promise((resolve) => setTimeout(resolve, 166));
+    ledOff(note, lights);
 
     res.status(200).send("OK");
   } else {
