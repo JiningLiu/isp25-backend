@@ -1,5 +1,5 @@
-// const five = require('johnny-five');
-// const Raspi = require('raspi-io').RaspiIO;
+const five = require("johnny-five");
+const Raspi = require("raspi-io").RaspiIO;
 import type { Request, Response } from "express";
 const express = require("express");
 const app = express();
@@ -24,19 +24,19 @@ let gs: typeof Glockenspiel | null = null;
 let lights: typeof Lights | null = null;
 
 // RPi GPIO Connection
-// const board = new five.Board({
-//   io: new Raspi()
-// });
+const board = new five.Board({
+  io: new Raspi(),
+});
 
 let playNoteTimeout: NodeJS.Timeout | null = null;
 
 serverStatus = Status.NO_BOARD;
 
-// board.on("ready", () => {
-//   gs = new Glockenspiel();
-//   lights = new Lights();
-//   serverStatus = Status.READY;
-// });
+board.on("ready", () => {
+  gs = new Glockenspiel();
+  lights = new Lights();
+  serverStatus = Status.READY;
+});
 
 app.use(express.json());
 
@@ -58,7 +58,7 @@ app.post("/play", async (req: Request, res: Response) => {
       if (lights) {
         ledOff(note, lights);
       }
-    }, 500);
+    }, 250);
 
     res.status(200).send("OK");
   } else {

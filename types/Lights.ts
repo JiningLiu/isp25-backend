@@ -19,9 +19,9 @@ class Lights {
     function ledConfig(pin: number): {
       controller: string;
       pin: number;
-      range: number[];
+      address: number;
     } {
-      return { controller: "PCA9685", pin: pin, range: [0, 90] };
+      return { controller: "PCA9685", pin: pin, address: 0x41 };
     }
 
     this.c1 = new Led(ledConfig(0));
@@ -122,5 +122,5 @@ module.exports = {
   Lights,
   ledOn,
   ledOff,
-  ledsSet
+  ledsSet,
 };

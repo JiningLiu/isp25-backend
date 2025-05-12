@@ -15,7 +15,7 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "it": "ts-node index.ts",
+    "it": "sudo env \"PATH=$PATH\" /home/isp/.nvm/versions/node/v22.15.0/bin/npx ts-node index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {

@@ -19,9 +19,9 @@ class Glockenspiel {
     function servoConfig(pin: number): {
       controller: string;
       pin: number;
-      range: number[];
+      startAt: number;
     } {
-      return { controller: "PCA9685", pin: pin, range: [0, 90] };
+      return { controller: "PCA9685", pin: pin, startAt: 60 };
     }
 
     this.c1 = new Servo(servoConfig(0));
@@ -69,13 +69,13 @@ declare module "johnny-five" {
 }
 
 Servo.prototype.play = function () {
-  this.max();
+  this.to(0, 125);
   setTimeout(() => {
-    this.min();
-  }, 200);
+    this.to(60, 125);
+  }, 125);
 };
 
 module.exports = {
   Glockenspiel,
-  playNote
+  playNote,
 };
