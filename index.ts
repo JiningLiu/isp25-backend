@@ -44,7 +44,8 @@ let arr: msg[] = [];
 type msg = {
   band: string,
   song: string,
-  message: string[]
+  message: string[],
+  bpm: number
 }
 
 
@@ -71,14 +72,13 @@ app.post("/play", async (req: Request, res: Response) => {
   }
 });
 
-//---------------
 app.post("/exec", async (req: Request, response: Response) => {
   console.log("play");
   const idx = (req.body as { idx: number }).idx;
   console.log("message: ", +idx);
   globalIter++;
   globalIter %= 128;
-  setTimeout(() => { if (idx && arr[idx]) { chain(arr[idx].message, globalIter), 0 } })
+  setTimeout(() => { if (idx && arr[idx]) { chain(arr[idx].message, globalIter, arr[idx].bpm), 0 } })
 
   const res = response.json({ status: "ok" });
   res.header('Access-Control-Allow-Origin', '*');
@@ -112,16 +112,6 @@ app.post("/note", async (req: Request, response: Response) => {
 })
 
 
-
-
-//----------
-
-// Submit endpoint
-app.post("/submit", async (req: Request, res: Response) => {
-  const code = req.body as typeof Code;
-  res.status(200).send("OK");
-});
-
 // 404 handler
 app.use((req: Request, res: Response) => {
   res.status(404).send("Not Found");
@@ -131,17 +121,17 @@ app.listen(20240, () => {
   console.log(`Server is running on port 20240`);
 });
 
-async function chain(a: string[], iter: number) {
+async function chain(a: string[], iter: number, bpm:number) {
   if (a.length == 0 || iter != globalIter) return;
   //if it is a num
   if (a[0] == null || isNaN(+a[0])) {
-    
+
     console.log("chain", a);//EDIT THIS
 
-    chain(a.slice(1), iter);
+    chain(a.slice(1), iter, bpm);
 
   } else {
-    setTimeout(() => chain(a.slice(1), iter), +a[0] * 1000)
+    setTimeout(() => chain(a.slice(1), iter, bpm), +a[0]/bpm * 60000)
 
   }
 }
