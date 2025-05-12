@@ -1,8 +1,24 @@
 const five = require("johnny-five");
 const Raspi = require("raspi-io").RaspiIO;
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 const express = require("express");
 const app = express();
+
+// Add CORS middleware
+app.use((req: Request, res: Response, next: NextFunction) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
+
+  // Handle preflight requests
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+  next();
+});
+
+// Add JSON body parser middleware
+app.use(express.json());
 
 const { getStatusCode, Status } = require("./types/Status");
 const { Code } = require("./types/Code");
@@ -42,26 +58,72 @@ let globalIter = -1;
 let arr: msg[] = [];
 
 type msg = {
-  band: string,
-  song: string,
-  message: string[],
-  bpm: number
-}
+  band: string;
+  song: string;
+  message: string[];
+  bpm: number;
+};
+
 arr.push({
   band: "Jams",
   song: "Demo",
   message: [
-    "C4", "0.5", "C4", "0.5", "D4", "0.5", "C4", "0.5", "A5", "0.75", "A5", "0.75", "G4", "1.25",
+    "C4",
+    "0.5",
+    "C4",
+    "0.5",
+    "D4",
+    "0.5",
+    "C4",
+    "0.5",
+    "A5",
+    "0.75",
+    "A5",
+    "0.75",
+    "G4",
+    "1.25",
 
-    "C4", "0.5", "C4", "0.5", "D4", "0.5", "C4", "0.5", "G5", "0.75", "G5", "0.75", "F4", "1.25",
+    "C4",
+    "0.5",
+    "C4",
+    "0.5",
+    "D4",
+    "0.5",
+    "C4",
+    "0.5",
+    "G5",
+    "0.75",
+    "G5",
+    "0.75",
+    "F4",
+    "1.25",
 
-    "C4", "0.5", "C4", "0.5", "D4", "0.5", "C4", "0.5", "F5", "0.75", "G5", "0.75", "E4", "1",
-    "D4", "0.5", "C4", "0.5", "C4", "0.5", "G4", "1", "F4"
+    "C4",
+    "0.5",
+    "C4",
+    "0.5",
+    "D4",
+    "0.5",
+    "C4",
+    "0.5",
+    "F5",
+    "0.75",
+    "G5",
+    "0.75",
+    "E4",
+    "1",
+    "D4",
+    "0.5",
+    "C4",
+    "0.5",
+    "C4",
+    "0.5",
+    "G4",
+    "1",
+    "F4",
   ],
-  bpm: 160
+  bpm: 160,
 });
-
-app.use(express.json());
 
 // Status endpoint
 app.get("/status", (req: Request, res: Response) => {
@@ -85,44 +147,43 @@ app.post("/play", async (req: Request, res: Response) => {
 });
 
 app.post("/exec", async (req: Request, response: Response) => {
-  console.log("play");
+  console.log("play", req.body);
   const idx = (req.body as { idx: number }).idx;
   console.log("message: ", +idx);
   globalIter++;
   globalIter %= 128;
-  setTimeout(() => { if (idx && arr[idx]) { chain(arr[idx].message, globalIter, arr[idx].bpm), 0 } })
+  setTimeout(() => {
+    if (idx && arr[idx]) {
+      chain(arr[idx].message, globalIter, arr[idx].bpm), 0;
+    }
+  });
 
-  const res = response.json({ status: "ok" });
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', '*');
-  return res;
-})
+  return response.json({ status: "ok" });
+});
 
 app.get("/note", async (req: Request, response: Response) => {
   console.log("GET!");
   console.log("arr:", arr);
-  const res = response.json({ status: "ok", body: arr.map((e: any, i: number) => ({ song: e.song, band: e.band, idx: i })) });
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', '*');
-  res.header('Connection', 'keep-alive');
-  return res;
-})
+  return response.json({
+    status: "ok",
+    body: arr.map((e: any, i: number) => ({
+      song: e.song,
+      band: e.band,
+      idx: i,
+    })),
+  });
+});
+
 app.post("/note", async (req: Request, response: Response) => {
   console.log("POST!");
-  const resData: object = { "status": "ok", "message": "yippe!" };
-  const res = response.json(resData);
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', '*');
-  // add Access-Control-Allow-Headers if needed
+  const resData: object = { status: "ok", message: "yippe!" };
   let body = req.body as msg;
   setTimeout(async () => {
-
     arr.push(body);
     console.log("arr:", arr);
   }, 0);
-  return res;
-})
-
+  return response.json(resData);
+});
 
 // 404 handler
 app.use((req: Request, res: Response) => {
@@ -133,17 +194,14 @@ app.listen(20240, () => {
   console.log(`Server is running on port 20240`);
 });
 
-async function chain(a: string[], iter: number, bpm:number) {
+async function chain(a: string[], iter: number, bpm: number) {
   if (a.length == 0 || iter != globalIter) return;
   //if it is a num
   if (a[0] == null || isNaN(+a[0])) {
-
-    console.log("chain", a);//EDIT THIS
+    console.log("chain", a); //EDIT THIS
 
     chain(a.slice(1), iter, bpm);
-
   } else {
-    setTimeout(() => chain(a.slice(1), iter, bpm), +a[0]/bpm * 60000)
-
+    setTimeout(() => chain(a.slice(1), iter, bpm), (+a[0] / bpm) * 60000);
   }
 }
