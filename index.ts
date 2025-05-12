@@ -36,6 +36,18 @@ board.on("ready", () => {
   serverStatus = Status.READY;
 });
 
+//the iteration that is currently playing
+let globalIter = -1;
+
+let arr: msg[] = [];
+
+type msg = {
+  band: string,
+  song: string,
+  message: string[]
+}
+
+
 app.use(express.json());
 
 // Status endpoint
@@ -59,6 +71,51 @@ app.post("/play", async (req: Request, res: Response) => {
   }
 });
 
+//---------------
+app.post("/exec", async (req: Request, response: Response) => {
+  console.log("play");
+  const idx = (req.body as { idx: number }).idx;
+  console.log("message: ", +idx);
+  globalIter++;
+  globalIter %= 128;
+  setTimeout(() => { if (idx && arr[idx]) { chain(arr[idx].message, globalIter), 0 } })
+
+  const res = response.json({ status: "ok" });
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', '*');
+  return res;
+})
+
+app.get("/note", async (req: Request, response: Response) => {
+  console.log("GET!");
+  console.log("arr:", arr);
+  const res = response.json({ status: "ok", body: arr.map((e: any, i: number) => ({ song: e.song, band: e.band, idx: i })) });
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', '*');
+  res.header('Connection', 'keep-alive');
+  return res;
+})
+app.post("/note", async (req: Request, response: Response) => {
+  console.log("POST!");
+  const resData: object = { "status": "ok", "message": "yippe!" };
+  const res = response.json(resData);
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', '*');
+  // add Access-Control-Allow-Headers if needed
+  let body = req.body as msg;
+  setTimeout(async () => {
+
+    arr.push(body);
+    console.log("arr:", arr);
+  }, 0);
+  return res;
+})
+
+
+
+
+//----------
+
 // Submit endpoint
 app.post("/submit", async (req: Request, res: Response) => {
   const code = req.body as typeof Code;
@@ -73,3 +130,18 @@ app.use((req: Request, res: Response) => {
 app.listen(20240, () => {
   console.log(`Server is running on port 20240`);
 });
+
+async function chain(a: string[], iter: number) {
+  if (a.length == 0 || iter != globalIter) return;
+  //if it is a num
+  if (a[0] == null || isNaN(+a[0])) {
+    
+    console.log("chain", a);//EDIT THIS
+
+    chain(a.slice(1), iter);
+
+  } else {
+    setTimeout(() => chain(a.slice(1), iter), +a[0] * 1000)
+
+  }
+}
